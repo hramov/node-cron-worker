@@ -31,6 +31,7 @@ export class NodeCronWorkerTask implements INodeCronWorkerTask {
             event: TaskMessage.Stop,
             data: null,
         });
+        this.worker.terminate();
     }
 
     journal(): string[] {

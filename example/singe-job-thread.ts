@@ -28,11 +28,13 @@ async function start() {
         return;
     }
 
+
     task.start();
 
     setTimeout(() => {
         task.stop();
-        console.log(task.journal())
+        console.log(task.journal());
+        task.start();
     }, 5000);
 }
 

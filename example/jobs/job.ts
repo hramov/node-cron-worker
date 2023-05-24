@@ -6,6 +6,6 @@ export function run(params: any) {
         parentPort.postMessage({
             event: 'message',
             data: '123',
-        })
+        });
     }
 }

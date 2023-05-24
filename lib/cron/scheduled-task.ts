@@ -15,7 +15,7 @@ export class ScheduledTask extends EventEmitter {
             options = {
                 scheduled: true,
                 recoverMissedExecutions: false
-            };
+            }
         }
       
         this.options = options;
@@ -28,7 +28,7 @@ export class ScheduledTask extends EventEmitter {
             this.now(now);
         });
 
-        if(options.scheduled){
+        if(options.scheduled) {
             this._scheduler.start();
         }
         

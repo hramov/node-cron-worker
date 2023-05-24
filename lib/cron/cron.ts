@@ -7,7 +7,7 @@ export class Cron {
 
     public static schedule(expression: string, func: Function, options: IScheduleOptions) {
         const task = this.createTask(expression, func, options);
-        Cron.scheduledTasks.set(task.getName(), task)
+        Cron.scheduledTasks.set(task.getName(), task);
         return task;
     }
 
@@ -27,5 +27,17 @@ export class Cron {
     public static getTasks() {
         return Cron.scheduledTasks;
     }
-
 }
+
+/**
+ * пришло время запуска
+ * поднимаем поток
+ * запускаем задачу
+ * отслеживаем окончание работы -> event('stop');
+ * убиваем поток
+ * */
+
+/**
+ * 1) cron supervisor -> worker -> task (multiple threads)
+ * 2) worker -> cron supervisor -> task (one thread)
+ */
