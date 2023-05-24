@@ -33,7 +33,7 @@ async function start() {
     setTimeout(() => {
         task.stop();
         console.log(task.journal())
-    }, 4000);
+    }, 5000);
 }
 
 start().catch((err: Error) => console.error(err.message));

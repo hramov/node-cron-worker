@@ -1,4 +1,4 @@
-import {ScheduleOptions} from "node-cron";
+import {EventEmitter} from "events";
 
 /**
  * CronThread - one additional thread for all jobs
@@ -23,7 +23,7 @@ export interface INodeCronWorker {
     schedule(params: ICronWorkerJob, funcParams: any, options: INodeCronWorkerScheduleOptions): Promise<INodeCronWorkerTask | Error>
 }
 
-export interface INodeCronWorkerScheduleOptions extends ScheduleOptions {}
+export interface INodeCronWorkerScheduleOptions extends IScheduleOptions {}
 
 export interface INodeCronWorkerTask {
     setCallback(cb: Function): void;
@@ -37,4 +37,18 @@ export type CronFunc = ((now: Date | "manual" | "init") => void) | string;
 export const enum TaskMessage {
     Start = 'start',
     Stop = 'stop',
+}
+
+export interface IScheduledTask extends EventEmitter {
+    now: (now?: Date) => void;
+    start: () => void;
+    stop: () => void;
+}
+
+export interface IScheduleOptions {
+    scheduled?: boolean | undefined;
+    timezone?: string;
+    recoverMissedExecutions?: boolean;
+    name?: string;
+    runOnInit?: boolean;
 }

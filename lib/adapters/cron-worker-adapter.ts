@@ -1,5 +1,5 @@
 import { parentPort, workerData } from 'worker_threads';
-import { schedule } from 'node-cron';
+import { schedule } from '../cron/cron';
 import {NEW_TASK_EVENT} from "../constants";
 import {TaskMessage} from "../interface";
 
@@ -27,5 +27,5 @@ if (parentPort) {
             default:
                 console.log('Unknown event');
         }
-    })
+    });
 }
