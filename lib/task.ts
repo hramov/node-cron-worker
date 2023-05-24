@@ -1,15 +1,41 @@
-import {INodeCronWorkerTask} from "./interface";
+import {INodeCronWorkerTask, TaskMessage} from "./interface";
 import {ScheduledTask} from "node-cron";
 import {Worker} from "worker_threads";
 
 export class NodeCronWorkerTask implements INodeCronWorkerTask {
+    private readonly taskLog: string[];
+    private callback: Function;
 
-    constructor(private readonly task: ScheduledTask, private readonly worker: Worker) {}
+    constructor(private readonly worker: Worker) {
+        this.taskLog = [];
+        this.worker.on('message', (msg: any) => {
+            this.taskLog.push(msg);
+            if (this.callback && typeof this.callback === 'function') {
+                this.callback(msg);
+            }
+        })
+    }
 
-    start(): void {}
+    setCallback(cb: Function) {
+        this.callback = cb;
+    }
 
-    stop(): void {}
+    start(): void {
+        this.worker.postMessage({
+            event: TaskMessage.Start,
+            data: null,
+        });
+    }
 
-    status(): void {}
+    stop(): void {
+        this.worker.postMessage({
+            event: TaskMessage.Stop,
+            data: null,
+        });
+    }
+
+    journal(): string[] {
+        return this.taskLog;
+    }
 
 }

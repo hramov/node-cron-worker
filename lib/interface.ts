@@ -11,6 +11,7 @@ export const enum Modes {
 
 export interface ICronWorkerJob {
     name: string;
+    path: string;
     enabled: boolean;
     cronTime: string;
     params: any;
@@ -25,9 +26,15 @@ export interface INodeCronWorker {
 export interface INodeCronWorkerScheduleOptions extends ScheduleOptions {}
 
 export interface INodeCronWorkerTask {
+    setCallback(cb: Function): void;
     start(): void;
     stop(): void;
-    status(): void;
+    journal(): void;
 }
 
-export type CronFunc = ((now: Date | "manual" | "init") => void) | string
+export type CronFunc = ((now: Date | "manual" | "init") => void) | string;
+
+export const enum TaskMessage {
+    Start = 'start',
+    Stop = 'stop',
+}

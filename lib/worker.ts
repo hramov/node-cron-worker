@@ -1,7 +1,7 @@
 import {ICronWorkerJob, INodeCronWorker, INodeCronWorkerScheduleOptions, INodeCronWorkerTask, Modes} from "./interface";
 import {NodeCronWorkerRunner} from "./runner";
 
-export class NodeCronWorker implements INodeCronWorker{
+export class NodeCronWorker implements INodeCronWorker {
     private mode: Modes = Modes.CronThread;
     private readonly runner: NodeCronWorkerRunner;
 

@@ -1,4 +1,3 @@
-import { ScheduledTask } from "node-cron";
 import { Worker } from "worker_threads";
 
 import {ICronWorkerJob, INodeCronWorkerScheduleOptions, INodeCronWorkerTask} from "./interface";
@@ -8,7 +7,7 @@ import {NEW_TASK_EVENT} from "./constants";
 
 export class NodeCronWorkerRunner {
     public async schedule(params: ICronWorkerJob, options: INodeCronWorkerScheduleOptions): Promise<INodeCronWorkerTask> {
-        return new NodeCronWorkerTask({} as ScheduledTask, {} as Worker);
+        return new NodeCronWorkerTask({} as Worker);
     }
 
     public async scheduleJob(params: ICronWorkerJob, options: INodeCronWorkerScheduleOptions): Promise<INodeCronWorkerTask> {
@@ -19,18 +18,16 @@ export class NodeCronWorkerRunner {
                 workerData: cronDataString,
             });
 
-            let task: ScheduledTask;
-
             worker.on('online', () => {
-                console.log('Worker is online');
+                console.log(options.name + ' is online');
             });
 
             worker.on('message', (data: any) => {
-                const dataObject = JSON.parse(data.data);
                 if (data.event === NEW_TASK_EVENT) {
-                    task = dataObject;
+                    resolve(new NodeCronWorkerTask(worker));
+                } else {
+                    reject(new Error('Wrong start event'));
                 }
-                resolve(new NodeCronWorkerTask(task, worker));
             });
 
             worker.on('error', (err: Error) => {
@@ -38,8 +35,9 @@ export class NodeCronWorkerRunner {
             });
 
             worker.on('exit', (code: number) => {
-                code === 0 ? resolve(new NodeCronWorkerTask(task, worker)): reject(new Error(`Worker exited with code ${code}`));
+                code === 0 ? console.log(options.name + " is offline") : reject(new Error(`${options.name} exited with code ${code}`));
             });
+
         });
     }
 }
