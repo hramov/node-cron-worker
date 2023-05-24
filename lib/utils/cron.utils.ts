@@ -1,4 +1,4 @@
-export function convertAsterisksToRanges(expressions: string[]){
+export function convertAsterisksToRanges(expressions: string[]) {
     expressions[0] = convertAsterisk(expressions[0], '0-59');
     expressions[1] = convertAsterisk(expressions[1], '0-59');
     expressions[2] = convertAsterisk(expressions[2], '0-23');
@@ -25,7 +25,7 @@ export function convertAllRanges(expressions: string[]) {
     return expressions;
 }
 
-export function convertSteps(expressions: string[]){
+export function convertSteps(expressions: string[]) {
     const stepValuePattern = /^(.+)\/(\w+)$/;
     for(let i = 0; i < expressions.length; i++){
         const match = stepValuePattern.exec(expressions[i]);
@@ -48,6 +48,14 @@ export function convertSteps(expressions: string[]){
         }
     }
     return expressions;
+}
+
+export function matchPattern(pattern: string, value: number) {
+    if( pattern.indexOf(',') !== -1 ){
+        const patterns = pattern.split(',');
+        return patterns.indexOf(value.toString()) !== -1;
+    }
+    return pattern === value.toString();
 }
 
 function replaceWithRange(expression: string, text: string, init: string, end: string) {

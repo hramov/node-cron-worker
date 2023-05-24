@@ -1,5 +1,5 @@
 import { parentPort, workerData } from 'worker_threads';
-import { schedule } from '../cron/cron';
+import { Cron } from '../cron/cron';
 import {NEW_TASK_EVENT} from "../constants";
 import {TaskMessage} from "../interface";
 
@@ -8,7 +8,11 @@ const { params, options } = JSON.parse(workerData);
 const job = require(params.path);
 const run = job.run.bind({}, params.params);
 
-const cronTask = schedule(params.cronTime, run, options);
+if (!Cron.validate(params.cronTime)) {
+    throw new Error('Wrong cron time format');
+}
+
+const cronTask = Cron.schedule(params.cronTime, run, options);
 
 if (parentPort) {
     parentPort.postMessage({

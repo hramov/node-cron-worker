@@ -5,7 +5,7 @@ import { v4 } from 'uuid'
 import {IScheduleOptions} from "../interface";
 
 export class ScheduledTask extends EventEmitter {
-    private options: any;
+    private options: IScheduleOptions;
     private _task: Task;
     private _scheduler: Scheduler;
 
@@ -35,6 +35,10 @@ export class ScheduledTask extends EventEmitter {
         if(options.runOnInit === true){
             this.now('init');
         }
+    }
+
+    getName() {
+        return this.options.name;
     }
     
     now(now = 'manual') {

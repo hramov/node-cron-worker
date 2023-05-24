@@ -1,14 +1,5 @@
-import {convertExpression} from "../utils/cron.utils";
-
 const { validation } = require('../validation/pattern-validation');
-
-function matchPattern(pattern: string, value: number) {
-    if( pattern.indexOf(',') !== -1 ){
-        const patterns = pattern.split(',');
-        return patterns.indexOf(value.toString()) !== -1;
-    }
-    return pattern === value.toString();
-}
+import {convertExpression, matchPattern} from "../utils/cron.utils";
 
 export class TimeMatcher {
     private readonly pattern: string;
