@@ -4,13 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start:example": "nodemon ./example/cron-thread.ts"
+    "start:example": "nodemon ./example/singe-job-thread.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "node-cron": "^3.0.2"
+    "node-cron": "^3.0.2",
+    "ts-node": "^10.9.1"
   },
   "devDependencies": {
     "@types/node-cron": "^3.0.7"

@@ -1,1 +1,1 @@
-export { NodeCronWorker } from './lib/node-cron-worker';
+export { NodeCronWorker } from './lib/worker';

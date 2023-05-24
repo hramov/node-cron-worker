@@ -1,0 +1,1 @@
+export const NEW_TASK_EVENT = 'new_task';

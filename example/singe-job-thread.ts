@@ -5,11 +5,15 @@ async function start() {
     const nodeCronWorker = new NodeCronWorker();
     nodeCronWorker.setMode(Modes.SingleJobThread);
 
-    const task = await nodeCronWorker.schedule('* * * * * *', (params: any) => {
-        console.log(params.foo)
-    }, { foo: 'bar'}, {
+    const task = await nodeCronWorker.schedule({
+        name: 'Job',
+        enabled: true,
+        cronTime: '*/2 * * * * *',
+        params: {},
+        runOnce: false,
+    }, {
         timezone: 'Europe/Moscow',
-        name: 'TestJob',
+        name: 'Job',
         scheduled: true,
         runOnInit: false,
         recoverMissedExecutions: false
