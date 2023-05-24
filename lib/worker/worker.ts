@@ -1,4 +1,4 @@
-import {ICronWorkerJob, INodeCronWorker, INodeCronWorkerScheduleOptions, INodeCronWorkerTask, Modes} from "./interface";
+import {ICronWorkerJob, INodeCronWorker, INodeCronWorkerScheduleOptions, INodeCronWorkerTask, Modes} from "../interface";
 import {NodeCronWorkerRunner} from "./runner";
 
 export class NodeCronWorker implements INodeCronWorker {

@@ -1,4 +1,4 @@
-import {INodeCronWorkerTask, TaskMessage} from "./interface";
+import {INodeCronWorkerTask, TaskMessage} from "../interface";
 import {Worker} from "worker_threads";
 
 export class NodeCronWorkerTask implements INodeCronWorkerTask {

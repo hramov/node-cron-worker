@@ -1,5 +1,7 @@
 import {EventEmitter} from "events";
 
+export type CronFunc = ((now: Date | "manual" | "init") => void) | string;
+
 /**
  * CronThread - one additional thread for all jobs
  * SingleJobThread - one job - one thread
@@ -7,6 +9,11 @@ import {EventEmitter} from "events";
 export const enum Modes {
     CronThread,
     SingleJobThread
+}
+
+export const enum TaskMessage {
+    Start = 'start',
+    Stop = 'stop',
 }
 
 export interface ICronWorkerJob {
@@ -30,13 +37,6 @@ export interface INodeCronWorkerTask {
     start(): void;
     stop(): void;
     journal(): void;
-}
-
-export type CronFunc = ((now: Date | "manual" | "init") => void) | string;
-
-export const enum TaskMessage {
-    Start = 'start',
-    Stop = 'stop',
 }
 
 export interface IScheduledTask extends EventEmitter {
