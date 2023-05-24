@@ -1,4 +1,4 @@
-import {INodeCronWorkerTask} from "./node-cron-worker";
+import {INodeCronWorkerTask} from "./interface";
 
 export class NodeCronWorkerTask implements INodeCronWorkerTask {
     start(): void {

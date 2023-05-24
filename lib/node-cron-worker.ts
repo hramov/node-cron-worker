@@ -1,20 +1,27 @@
-import {INodeCronWorker, Modes} from "./interface";
-import {schedule, ScheduleOptions} from "node-cron";
+import {INodeCronWorker, INodeCronWorkerScheduleOptions, INodeCronWorkerTask, Modes} from "./interface";
 import {NodeCronWorkerTask} from "./node-cron-worker-task";
 
-export interface INodeCronWorkerScheduleOptions extends ScheduleOptions {}
-
-export interface INodeCronWorkerTask {
-    start(): void;
-    stop(): void;
-    status(): void;
-
-}
-
 export class NodeCronWorker implements INodeCronWorker{
-    setMode(mode: Modes): void {}
+    private mode: Modes = Modes.CronThread;
 
-    async schedule(cron: string, func: Function, funcParams: any, options: INodeCronWorkerScheduleOptions): Promise<INodeCronWorkerTask> {
+    public setMode(mode: Modes): void {
+        this.mode = mode;
+    }
+
+    public async schedule(cron: string, func: Function, funcParams: any, options: INodeCronWorkerScheduleOptions): Promise<INodeCronWorkerTask | Error> {
+        if (this.mode === Modes.CronThread) {
+            return this.scheduleCronThreadJob();
+        } else if (this.mode === Modes.SingleJobThread) {
+            return this.scheduleSingleJobThreadJob();
+        }
+        return new Error('Wrong mode');
+    }
+
+    private async scheduleCronThreadJob(): Promise<INodeCronWorkerTask> {
+        return new NodeCronWorkerTask();
+    }
+
+    private async scheduleSingleJobThreadJob(): Promise<INodeCronWorkerTask> {
         return new NodeCronWorkerTask();
     }
 

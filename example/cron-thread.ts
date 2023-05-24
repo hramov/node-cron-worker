@@ -15,6 +15,11 @@ async function start() {
         recoverMissedExecutions: false
     });
 
+    if (task instanceof Error) {
+        // error handling
+        return;
+    }
+
     task.start();
 }
 
