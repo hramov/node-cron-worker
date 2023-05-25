@@ -1,5 +1,5 @@
-const { validation } = require('../validation/pattern-validation');
-import {convertExpression, matchPattern} from "../utils/cron.utils";
+const { validation } = require('../validation/patternValidation');
+import {convertExpression, matchPattern} from "./cron.utils";
 
 export class TimeMatcher {
     private readonly pattern: string;
@@ -13,7 +13,7 @@ export class TimeMatcher {
         this.expressions = this.pattern.split(' ');
     }
 
-    match(rawDate: Date){
+    match(rawDate: Date) {
         const date = this.apply(rawDate);
 
         const runOnSecond = matchPattern(this.expressions[0], date.getSeconds());
@@ -26,7 +26,7 @@ export class TimeMatcher {
         return runOnSecond && runOnMinute && runOnHour && runOnDay && runOnMonth && runOnWeekDay;
     }
 
-    apply(date: Date){
+    apply(date: Date) {
         if (this.timezone){
             const dtf = new Intl.DateTimeFormat('en-US', {
                 year: 'numeric',

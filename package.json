@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start:example": "nodemon ./example/singe-job-thread.ts"
+    "start:example": "nodemon example/example.ts"
   },
-  "keywords": [],
+  "keywords": ["worker_threads", "cron"],
   "author": "",
   "license": "ISC",
   "dependencies": {

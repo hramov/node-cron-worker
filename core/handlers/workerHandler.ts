@@ -1,4 +1,4 @@
-import { parentPort, workerData } from 'worker_threads';
+import { parentPort } from 'worker_threads';
 import {ICronWorkerJob} from "../interface";
 
 async function idle() {
@@ -10,7 +10,7 @@ async function idle() {
 }
 
 async function run(task: ICronWorkerJob) {
-    parentPort!.postMessage({
+    parentPort?.postMessage({
         event: 'new_task',
     });
 
@@ -19,14 +19,14 @@ async function run(task: ICronWorkerJob) {
         try {
             await job.run(task.params);
         } catch(_err: unknown) {
-            parentPort!.postMessage({
+            parentPort?.postMessage({
                 event: 'error',
                 error: _err,
             });
         }
     }
 
-    parentPort!.postMessage({
+    parentPort?.postMessage({
         event: 'task_complete',
     });
 }

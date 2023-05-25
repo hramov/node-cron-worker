@@ -1,7 +1,7 @@
 import { Worker } from 'worker_threads';
 import {join} from "path";
 import { v4 } from 'uuid';
-import {ICronWorkerJob} from "../interface";
+import {ICronWorkerJob} from "./interface";
 
 export interface PoolOptions {
     min: number;
@@ -42,7 +42,7 @@ export class Pool {
     private createWorker() {
         const workerId = v4();
 
-        const worker = new Worker(join(__dirname, '..', 'adapters', 'pool-adapter.js'), {
+        const worker = new Worker(join(__dirname, 'adapters', 'poolAdapter.js'), {
             workerData: {
                 id: workerId
             },
@@ -81,7 +81,7 @@ export class Pool {
                 if (msg.event === 'task_complete') {
                     this.freeWorkers.push(workerId);
                 } else if (msg.event === 'error') {
-                    console.log('ERROR ', msg.error.message);
+                    console.log('Task error ', msg.error.message);
                     const currentErrors = this.tasksError.get(taskId) || 0;
 
                     if (currentErrors > 2) {

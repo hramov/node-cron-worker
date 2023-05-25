@@ -1,1 +1,2 @@
-export { NodeCronWorker } from './lib/worker/worker';
+export { Supervisor } from './core/supervisor';
+export {INodeCronWorkerScheduleOptions, ICronWorkerJob} from "./core/interface";

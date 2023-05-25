@@ -1,5 +1,5 @@
 import EventEmitter from "events";
-import {TimeMatcher} from "./time-matcher";
+import {TimeMatcher} from "./utils/timeMatcher";
 
 export class Scheduler extends EventEmitter {
     private timeMatcher: TimeMatcher;
