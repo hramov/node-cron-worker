@@ -4,6 +4,31 @@
 
 Based on node-cron scheduler and worker_threads
 
+Try this at your own risk! <code>npm i cron-worker-threads</code>
+
+Examples can be found in <code>./example</code>
+
+Basic use
+<pre><code>const options = {
+        timezone: 'Europe/Moscow',
+        poolMin: 1,
+        poolMax: 5,
+    }
+
+    const task = {
+        name: 'Job',
+        path: join(__dirname, 'jobs', 'job.ts'),
+        enabled: true,
+        cronTime: '*/2 * * * * *',
+        params: {
+            foo: 'bar'
+        },
+        runOnce: false,
+    };
+
+    const supervisor = new Supervisor([task], options);
+    supervisor.start();</code></pre>
+
 ## Advantages
  - [X] Cron scheduler starts in separate thread and thus doesn't affect main thread and doesn't depend on its event loop  
  - [X] Every cron job implements as a separate TypeScript file that allows you to use all power of typing

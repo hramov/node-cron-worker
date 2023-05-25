@@ -1,5 +1,5 @@
 import {join} from "path";
-import {Supervisor} from "../main";
+import {Supervisor} from "../core/main";
 
 async function testSupervisor() {
     const options = {

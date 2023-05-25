@@ -28,7 +28,7 @@ export class ScheduledTask extends EventEmitter {
         this.options = options;
         this.options.name = this.options.name || v4();
 
-        const task = new WorkerTask(job, workerPool);
+        const task = new WorkerTask(job, this.workerPool);
 
         this.scheduler = new Scheduler(job.cronTime, options.timezone || '', options.recoverMissedExecutions || false);
 

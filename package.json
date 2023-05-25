@@ -1,10 +1,13 @@
 {
   "name": "cron-worker-threads",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "NodeJS library for starting cron jobs in separate threads",
+  "main": "dist/main.js",
+  "types": "dist/main.d.ts",
   "scripts": {
-    "start:example": "nodemon example/example.ts"
+    "prepublish": "tsc",
+    "start:example": "nodemon example/example.ts",
+    "publish": "npm publish"
   },
   "keywords": ["worker_threads", "cron"],
   "author": "",

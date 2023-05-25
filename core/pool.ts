@@ -28,7 +28,7 @@ export class Pool {
         this.tasks = new Map();
         this.tasksError = new Map();
 
-        for (let i = 0; i < options.min; i++) {
+        for (let i = 0; i < this.min; i++) {
             this.createWorker();
         }
 
