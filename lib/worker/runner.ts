@@ -14,7 +14,7 @@ export class NodeCronWorkerRunner {
         const cronDataString = JSON.stringify({params, options });
 
         return new Promise((resolve, reject) => {
-            const worker = new Worker(join(__dirname, '..', 'adapters', 'adapter.js'), {
+            const worker = new Worker(join(__dirname, '..', 'adapters', 'cron-adapter.js'), {
                 workerData: cronDataString,
             });
 

@@ -35,9 +35,9 @@ export class Cron {
  * запускаем задачу
  * отслеживаем окончание работы -> event('stop');
  * убиваем поток
- * */
+ */
 
 /**
- * 1) cron supervisor -> worker -> task (multiple threads)
+ * 1) cron supervisor -> worker pool -> worker -> task (multiple threads)
  * 2) worker -> cron supervisor -> task (one thread)
  */
