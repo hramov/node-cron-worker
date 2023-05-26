@@ -13,6 +13,7 @@ export class Pool {
     private readonly workerPool: Map<string, Worker>;
     private readonly freeWorkers: string[];
     private readonly tasks: Map<string, ICronWorkerJob>;
+    private readonly processedTasks: Map<string, boolean>;
     private readonly tasksError: Map<string, number>;
 
     private readonly min: number;
@@ -27,6 +28,7 @@ export class Pool {
         this.freeWorkers = [];
         this.tasks = new Map();
         this.tasksError = new Map();
+        this.processedTasks = new Map();
 
         for (let i = 0; i < this.min; i++) {
             this.createWorker();
@@ -36,7 +38,10 @@ export class Pool {
     }
 
     public setTask(task: ICronWorkerJob) {
-        this.tasks.set(v4(), task);
+        if (!this.processedTasks.has(task.name)) {
+            this.tasks.set(task.name, task);
+        }
+        return task.name;
     }
 
     private createWorker() {
@@ -86,7 +91,7 @@ export class Pool {
     }
 
     private processWorker(task: ICronWorkerJob, taskId: string) {
-        this.tasks.delete(taskId);
+        this.processedTasks.set(taskId, true);
         const workerId = this.freeWorkers[0];
 
         const worker = this.workerPool.get(workerId);
@@ -101,16 +106,20 @@ export class Pool {
             const listener = (msg: { event: string, error: Error }) => {
                 if (msg.event === 'task_complete') {
                     console.log(`Worker ${workerId} completed task ${taskId}`);
+                    this.processedTasks.delete(taskId);
+                    this.tasks.delete(taskId);
                     this.freeWorkers.push(workerId);
                     worker.removeListener('message', listener);
                 } else if (msg.event === 'error') {
                     console.log('Task error ', msg.error.message);
                     const currentErrors = this.tasksError.get(taskId) || 0;
                     if (currentErrors > 2) {
-                        console.log(`Delete task ${taskId} for error overflow`)
+                        console.log(`Delete task ${taskId} for error overflow`);
+                        this.processedTasks.delete(taskId);
                         this.tasks.delete(taskId);
                     } else {
                         this.tasksError.set(taskId, currentErrors + 1);
+                        this.processedTasks.delete(taskId);
                         this.tasks.set(taskId, task);
                     }
                     this.freeWorkers.push(workerId);
@@ -122,6 +131,7 @@ export class Pool {
     }
 
     private processWorkerAndKill(task: ICronWorkerJob, taskId: string, worker: Worker) {
+        this.processedTasks.set(taskId, true);
         if (worker) {
             worker.postMessage({
                 event: 'task',
@@ -130,6 +140,7 @@ export class Pool {
 
             worker.on('message', (msg: { event: string }) => {
                 if (msg.event === 'task_complete') {
+                    this.processedTasks.delete(taskId);
                     this.tasks.delete(taskId);
                 }
                 worker.terminate().catch((err: Error) => console.error(err.message));
@@ -143,6 +154,11 @@ export class Pool {
                 const taskFromMap = this.tasks.entries().next().value;
 
                 const taskId = taskFromMap[0];
+
+                if (this.processedTasks.has(taskId)) {
+                    return;
+                }
+
                 const task = taskFromMap[1];
 
                 if (this.freeWorkers.length > 0) {

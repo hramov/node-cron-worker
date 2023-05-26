@@ -12,7 +12,7 @@ async function testSupervisor() {
         name: 'Job',
         path: join(__dirname, 'jobs', 'job.ts'),
         enabled: true,
-        cronTime: '*/5 * * * * *',
+        cronTime: '*/2 * * * * *',
         params: {
             foo: 'bar'
         },

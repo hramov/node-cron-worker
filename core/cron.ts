@@ -4,7 +4,7 @@ import {ScheduledTask} from "./scheduledTask";
 import {Pool} from "./pool";
 
 export class Cron {
-    private readonly scheduledTasks = new Map<string, ScheduledTask>();
+    private readonly scheduledTasks = new Map<string, { enabled: boolean, task: ScheduledTask}>();
     private readonly workerPool: Pool;
 
     constructor(private readonly options: INodeCronWorkerScheduleOptions) {
@@ -16,21 +16,28 @@ export class Cron {
 
     public start() {
         for (let i = 0; i < this.scheduledTasks.size; i++) {
-            const task = this.scheduledTasks.values().next().value;
-            task.start();
+            const { enabled, task } = this.scheduledTasks.values().next().value;
+            if (enabled) {
+                task.start();
+            }
         }
     }
 
     public stop() {
         for (let i = 0; i < this.scheduledTasks.size; i++) {
-            const task = this.scheduledTasks.values().next().value;
-            task.stop();
+            const { enabled, task } = this.scheduledTasks.values().next().value;
+            if (enabled) {
+                task.stop();
+            }
         }
     }
 
     public schedule(job: ICronWorkerJob) {
         const task = this.createTask(job);
-        this.scheduledTasks.set(task.getName()!, task);
+        this.scheduledTasks.set(task.getName()!, {
+            enabled: job.enabled,
+            task: task,
+        });
         return task;
     }
 

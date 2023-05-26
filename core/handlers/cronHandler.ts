@@ -10,9 +10,7 @@ function register() {
             if (!cron.validate(job.cronTime)) {
                 throw new Error('Wrong cron time format');
             }
-            if (job.enabled) {
-                cron.schedule(job);
-            }
+            cron.schedule(job);
         }
 
         parentPort.on('message', (msg: { event: string, data?: ICronWorkerJob }) => {
@@ -20,8 +18,14 @@ function register() {
                 cron.start();
             } else if (msg.event === TaskMessage.Stop) {
                 cron.stop();
-            } else if (msg.event === TaskMessage.AddTask) {
-                if (msg.data) cron.schedule(msg.data)
+            } else if (msg.event === TaskMessage.AddTask && msg.data) {
+                if (!cron.validate(msg.data.cronTime)) {
+                    throw new Error('Wrong cron time format');
+                }
+                const task = cron.schedule(msg.data);
+                if (msg.data.enabled) {
+                    task.start();
+                }
             }
         })
     }
