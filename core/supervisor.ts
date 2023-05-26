@@ -18,11 +18,16 @@ export class Supervisor {
     }
 
     public addTask(task: ICronWorkerJob) {
-        // TODO implement
+        this.scheduler.postMessage({
+            event: TaskMessage.AddTask,
+            data: task,
+        })
     }
 
-    public addTasks(task: ICronWorkerJob[]) {
-        // TODO implement
+    public addTasks(tasks: ICronWorkerJob[]) {
+        for (const task of tasks) {
+            this.addTask(task)
+        }
     }
 
     public start() {

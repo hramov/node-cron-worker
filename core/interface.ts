@@ -1,6 +1,7 @@
 export const enum TaskMessage {
     Start = 'start',
     Stop = 'stop',
+    AddTask = 'addTask',
 }
 
 export interface ICronWorkerJob {

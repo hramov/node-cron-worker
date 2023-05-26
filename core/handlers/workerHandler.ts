@@ -10,25 +10,27 @@ async function idle() {
 }
 
 async function run(task: ICronWorkerJob) {
-    parentPort?.postMessage({
-        event: 'new_task',
-    });
+    if (parentPort) {
+        parentPort.postMessage({
+            event: 'new_task',
+        });
 
-    const job = require(task.path);
-    if (job && job.run && typeof job.run === 'function') {
-        try {
-            await job.run(task.params);
-        } catch(_err: unknown) {
-            parentPort?.postMessage({
-                event: 'error',
-                error: _err,
-            });
+        const job = require(task.path);
+        if (job && job.run && typeof job.run === 'function') {
+            try {
+                await job.run(task.params);
+            } catch (_err: unknown) {
+                parentPort?.postMessage({
+                    event: 'error',
+                    error: _err,
+                });
+            }
         }
-    }
 
-    parentPort?.postMessage({
-        event: 'task_complete',
-    });
+        parentPort.postMessage({
+            event: 'task_complete',
+        });
+    }
 }
 
 idle().catch((err: Error) => console.log(err.message));
