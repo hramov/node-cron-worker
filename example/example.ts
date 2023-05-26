@@ -4,7 +4,7 @@ import {Supervisor} from "../core/main";
 async function testSupervisor() {
     const options = {
         timezone: 'Europe/Moscow',
-        poolMin: 1,
+        poolMin: 2,
         poolMax: 5,
     }
 
@@ -12,7 +12,7 @@ async function testSupervisor() {
         name: 'Job',
         path: join(__dirname, 'jobs', 'job.ts'),
         enabled: true,
-        cronTime: '*/2 * * * * *',
+        cronTime: '*/5 * * * * *',
         params: {
             foo: 'bar'
         },
@@ -21,10 +21,6 @@ async function testSupervisor() {
 
     const supervisor = new Supervisor([task], options);
     supervisor.start();
-
-    setTimeout(() => {
-        supervisor.stop()
-    }, 5000)
 }
 
 testSupervisor();

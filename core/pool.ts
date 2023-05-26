@@ -64,6 +64,27 @@ export class Pool {
         return workerId;
     }
 
+    private createOnetimeWorker() {
+        const workerId = v4();
+
+        const worker = new Worker(join(__dirname, 'adapters', 'poolAdapter.js'), {
+            workerData: {
+                id: workerId
+            },
+        });
+
+        worker.on('online', () => {
+            console.log(`Worker ${workerId} is online`);
+            this.workerPool.set(workerId, worker);
+        });
+
+        worker.on('exit', () => {
+            console.log(`Worker ${workerId} is offline`);
+            this.workerPool.delete(workerId);
+        });
+        return worker;
+    }
+
     private processWorker(task: ICronWorkerJob, taskId: string) {
         this.tasks.delete(taskId);
         const workerId = this.freeWorkers[0];
@@ -77,28 +98,30 @@ export class Pool {
                 task: task,
             });
 
-            worker.on('message', (msg: { event: string, error: Error }) => {
+            const listener = (msg: { event: string, error: Error }) => {
                 if (msg.event === 'task_complete') {
+                    console.log(`Worker ${workerId} completed task ${taskId}`);
                     this.freeWorkers.push(workerId);
+                    worker.removeListener('message', listener);
                 } else if (msg.event === 'error') {
                     console.log('Task error ', msg.error.message);
                     const currentErrors = this.tasksError.get(taskId) || 0;
-
                     if (currentErrors > 2) {
                         console.log(`Delete task ${taskId} for error overflow`)
                         this.tasks.delete(taskId);
                     } else {
                         this.tasksError.set(taskId, currentErrors + 1);
                         this.tasks.set(taskId, task);
-                        this.freeWorkers.push(workerId);
                     }
+                    this.freeWorkers.push(workerId);
+                    worker.removeListener('message', listener);
                 }
-            });
+            };
+            worker.on('message', listener);
         }
     }
 
-    private processWorkerAndKill(task: ICronWorkerJob, taskId: string, workerId: string) {
-        const worker = this.workerPool.get(workerId);
+    private processWorkerAndKill(task: ICronWorkerJob, taskId: string, worker: Worker) {
         if (worker) {
             worker.postMessage({
                 event: 'task',
@@ -108,9 +131,8 @@ export class Pool {
             worker.on('message', (msg: { event: string }) => {
                 if (msg.event === 'task_complete') {
                     this.tasks.delete(taskId);
-                    this.workerPool.delete(workerId);
-                    worker.terminate().catch((err: Error) => console.error(err.message));
                 }
+                worker.terminate().catch((err: Error) => console.error(err.message));
             })
         }
     }
@@ -126,13 +148,13 @@ export class Pool {
                 if (this.freeWorkers.length > 0) {
                     this.processWorker(task, taskId);
                 } else if (this.freeWorkers.length === 0 && this.workerPool.size < this.max) {
-                    const newWorkerId = this.createWorker();
-                    this.processWorkerAndKill(task, taskId, newWorkerId);
+                    const newWorker = this.createOnetimeWorker();
+                    this.processWorkerAndKill(task, taskId, newWorker);
                 } else {
                     console.log('Max worker pool size, waiting...')
                 }
             }
-        }, 500);
+        }, 1000);
     }
 
 }
