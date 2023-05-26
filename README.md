@@ -2,6 +2,8 @@
 - Write cron jobs with typescript
 - Run jobs in parallel with worker_threads
 
+[Github repository](https://github.com/hramov/node-cron-worker)
+
 Based on node-cron scheduler and worker_threads
 
 Try this at your own risk! <code>npm i cron-worker-threads</code>
