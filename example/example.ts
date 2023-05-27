@@ -17,6 +17,7 @@ async function testSupervisor() {
         timezone: 'Europe/Moscow',
         poolMin: 1,
         poolMax: 5,
+        logs: true,
     });
 
     supervisor.start();

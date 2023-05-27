@@ -16,6 +16,7 @@ export interface ICronWorkerJob {
 export interface INodeCronWorkerScheduleOptions extends IScheduleOptions {
     poolMin: number;
     poolMax: number;
+    logs: boolean;
 }
 
 export interface IScheduleOptions {
@@ -34,10 +35,10 @@ export const enum LogLevels {
 }
 
 export interface ILogger {
-    debug(message: LogMessage, context?: string): void;
-    info(message: LogMessage, context?: string): void;
-    warning(message: LogMessage, context?: string): void;
-    error(message: LogMessage, stack?: string, context?: string): void;
+    debug(message: string, context?: string): void;
+    info(message: string, context?: string): void;
+    warning(message: string, context?: string): void;
+    error(message: string, stack?: string, context?: string): void;
 }
 
 export interface LogMessage {

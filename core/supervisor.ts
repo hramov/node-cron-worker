@@ -1,11 +1,11 @@
-import {ICronWorkerJob, INodeCronWorkerScheduleOptions, LogLevels, LogMessage, TaskMessage} from "./interface";
+import {ICronWorkerJob, ILogger, INodeCronWorkerScheduleOptions, LogLevels, LogMessage, TaskMessage} from "./interface";
 import {Worker} from "worker_threads";
 import {join} from "path";
 
 export class Supervisor {
     private readonly scheduler: Worker;
 
-    constructor(private readonly jobs: ICronWorkerJob[], private readonly options: INodeCronWorkerScheduleOptions) {
+    constructor(private readonly jobs: ICronWorkerJob[], private readonly options: INodeCronWorkerScheduleOptions, private readonly logger?: ILogger) {
         this.scheduler = new Worker(join(__dirname, 'adapters', 'cronAdapter.js'), {
             workerData: {
                 jobs: this.jobs,
@@ -122,10 +122,29 @@ export class Supervisor {
     }
 
     private logCollector(message: LogMessage) {
-        console.log(JSON.stringify({
-            ts: new Date().toLocaleString(),
-            level: message.level,
-            message: message.message,
-        }));
+        if (this.options.logs) {
+            if (this.logger) {
+                switch (message.level) {
+                    case 'debug':
+                        this.logger.debug(message.message, this.constructor.name);
+                        break;
+                    case 'info':
+                        this.logger.info(message.message, this.constructor.name);
+                        break;
+                    case 'warning':
+                        this.logger.warning(message.message, this.constructor.name);
+                        break;
+                    case 'error':
+                        this.logger.error(message.message, this.constructor.name);
+                        break;
+                }
+            } else {
+                console.log(JSON.stringify({
+                    ts: new Date().toLocaleString(),
+                    level: message.level,
+                    message: message.message,
+                }));
+            }
+        }
     }
 }
