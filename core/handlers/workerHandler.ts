@@ -14,18 +14,19 @@ async function run(task: ICronWorkerJob) {
         const job = require(task.path);
         if (job && job.run && typeof job.run === 'function') {
             try {
-                await job.run(task.params);
+                const result = await job.run(task.params);
+                parentPort.postMessage({
+                    event: 'task_complete',
+                    data: result,
+                });
             } catch (_err: unknown) {
+                const err = _err as Error;
                 parentPort.postMessage({
                     event: 'error',
-                    error: _err,
+                    error: err.message,
                 });
             }
         }
-
-        parentPort.postMessage({
-            event: 'task_complete',
-        });
     }
 }
 

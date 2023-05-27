@@ -31,6 +31,18 @@ Basic use
     const supervisor = new Supervisor([task], options);
     supervisor.start();</code></pre>
 
+### Job communication with parent thread
+1) To indicate that job is finished successfully, just return something you want to see in logs that describes job's finish
+2) To indicate an error, throw an exception inside <code>run</code> function with error description
+
+<pre><code>export async function run(params: any) {
+    const result = //... your code
+    if (error) {
+        throw new Error(error);
+    }
+    return result;
+}</code></pre>
+
 ## Advantages
  - [X] Cron scheduler starts in separate thread and thus doesn't affect main thread and doesn't depend on its event loop  
  - [X] Every cron job implements as a separate TypeScript file that allows you to use all power of typing

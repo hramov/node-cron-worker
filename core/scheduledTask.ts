@@ -10,35 +10,48 @@ export class ScheduledTask extends EventEmitter {
     private options: INodeCronWorkerScheduleOptions;
     private readonly workerPool: Pool;
     private scheduler: Scheduler;
+    private readonly name: string;
 
     constructor(job: ICronWorkerJob, options: INodeCronWorkerScheduleOptions, workerPool: Pool) {
         super();
 
         this.workerPool = workerPool;
 
-        if(!options) {
-            options = {
-                scheduled: true,
-                recoverMissedExecutions: false,
-                poolMin: 1,
-                poolMax: 1,
-            }
+        if (!job.runOnce) {
+            job.runOnce = false;
         }
+
+        if (!job.params) {
+            job.params = {};
+        }
+
+        this.name = job.name;
       
         this.options = options;
         this.options.name = this.options.name || v4();
 
-        const task = new WorkerTask(job, this.workerPool);
-
         this.scheduler = new Scheduler(job.cronTime, options.timezone || '', options.recoverMissedExecutions || false);
 
-        this.scheduler.on('scheduled-time-matched', (now: any) => {
-            task.execute();
-        });
+        const task = new WorkerTask(job, this.workerPool);
+        if (job.runOnce) {
+            this.scheduler.once('scheduled-time-matched', (now: any) => {
+                task.execute();
+                this.scheduler.stop();
+            });
+        } else {
+            this.scheduler.on('scheduled-time-matched', (now: any) => {
+                task.execute();
+            });
+        }
+
+    }
+
+    getId() {
+        return this.options.name;
     }
 
     getName() {
-        return this.options.name;
+        return this.name;
     }
     
     start() {

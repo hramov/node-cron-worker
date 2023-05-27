@@ -2,6 +2,7 @@ import {validation} from "./validation/patternValidation";
 import {ICronWorkerJob, INodeCronWorkerScheduleOptions} from "./interface";
 import {ScheduledTask} from "./scheduledTask";
 import {Pool} from "./pool";
+import {parentPort} from "worker_threads";
 
 export class Cron {
     private readonly scheduledTasks = new Map<string, { enabled: boolean, task: ScheduledTask}>();
@@ -19,6 +20,10 @@ export class Cron {
             const { enabled, task } = this.scheduledTasks.values().next().value;
             if (enabled) {
                 task.start();
+                parentPort!.postMessage({
+                    event: `Task moved to execution queue`,
+                    data: task.name,
+                });
             }
         }
     }
@@ -28,15 +33,23 @@ export class Cron {
             const { enabled, task } = this.scheduledTasks.values().next().value;
             if (enabled) {
                 task.stop();
+                parentPort!.postMessage({
+                    event: `Task stopped`,
+                    data: task.name,
+                });
             }
         }
     }
 
     public schedule(job: ICronWorkerJob) {
         const task = this.createTask(job);
-        this.scheduledTasks.set(task.getName()!, {
+        this.scheduledTasks.set(task.getId()!, {
             enabled: job.enabled,
             task: task,
+        });
+        parentPort!.postMessage({
+            event: `Task scheduled`,
+            data: job.name,
         });
         return task;
     }
