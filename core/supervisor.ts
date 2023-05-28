@@ -67,6 +67,19 @@ export class Supervisor {
         });
     }
 
+    public async getStat() {
+        return new Promise((resolve, reject) => {
+            this.scheduler.postMessage({
+                event: TaskMessage.GetStat,
+            });
+            this.scheduler.once('message', (message: { event: string, data: any}) => {
+                if (message.event === TaskMessage.GetStat) {
+                    resolve(message.data);
+                }
+            });
+        })
+    }
+
     private schedulerEventListener(message: { event: string, data: any}) {
         if (message.event === 'Task scheduled') {
             this.logCollector({

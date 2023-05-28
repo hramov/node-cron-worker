@@ -3,7 +3,7 @@ import { v4 } from 'uuid'
 
 import {WorkerTask} from "./workerTask";
 import {Scheduler} from "./scheduler";
-import {ICronWorkerJob, INodeCronWorkerScheduleOptions} from "./interface";
+import {ICronWorkerJob, INodeCronWorkerScheduleOptions} from "../interface";
 import {Pool} from "./pool";
 
 export class ScheduledTask extends EventEmitter {

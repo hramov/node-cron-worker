@@ -1,5 +1,5 @@
 import {parentPort, workerData} from 'worker_threads';
-import { Cron } from '../cron';
+import { Cron } from './cron';
 import {ICronWorkerJob, TaskMessage} from "../interface";
 
 function register() {
@@ -26,6 +26,8 @@ function register() {
                 if (msg.data.enabled) {
                     task.start();
                 }
+            } else if (msg.event === TaskMessage.GetStat) {
+                cron.getWorkerStat();
             }
         })
     }

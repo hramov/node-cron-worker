@@ -1,5 +1,5 @@
-import {validation} from "./validation/patternValidation";
-import {ICronWorkerJob, INodeCronWorkerScheduleOptions} from "./interface";
+import {validation} from "../validation/patternValidation";
+import {ICronWorkerJob, INodeCronWorkerScheduleOptions, TaskMessage} from "../interface";
 import {ScheduledTask} from "./scheduledTask";
 import {Pool} from "./pool";
 import {parentPort} from "worker_threads";
@@ -12,7 +12,7 @@ export class Cron {
         this.workerPool = new Pool({
             min: this.options.poolMin,
             max: this.options.poolMax,
-        })
+        });
     }
 
     public start() {
@@ -65,6 +65,17 @@ export class Cron {
 
     public getTasks() {
         return this.scheduledTasks;
+    }
+
+    public getWorkerStat() {
+        parentPort?.postMessage({
+        event: TaskMessage.GetStat,
+        data: {
+            poolSize: this.workerPool.getCurrentWorkerPoolSize(),
+            taskPoolSize: this.workerPool.getCurrentTaskPoolSize(),
+            taskProcessing: this.workerPool.getCurrentProcessingTaskPoolSize(),
+        }
+    });
     }
 
     private createTask(job: ICronWorkerJob) {

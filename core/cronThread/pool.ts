@@ -1,7 +1,7 @@
 import {parentPort, Worker} from 'worker_threads';
 import {join} from "path";
 import { v4 } from 'uuid';
-import {ICronWorkerJob} from "./interface";
+import {ICronWorkerJob} from "../interface";
 
 export interface PoolOptions {
     min: number;
@@ -13,7 +13,7 @@ export class Pool {
     private readonly workerPool: Map<string, Worker>;
     private readonly freeWorkers: string[];
     private readonly tasks: Map<string, ICronWorkerJob>;
-    private readonly processedTasks: Map<string, boolean>;
+    private readonly processingTasks: Map<string, boolean>;
 
     private readonly min: number;
     private readonly max: number;
@@ -26,7 +26,7 @@ export class Pool {
         this.workerPool = new Map();
         this.freeWorkers = [];
         this.tasks = new Map();
-        this.processedTasks = new Map();
+        this.processingTasks = new Map();
 
         for (let i = 0; i < this.min; i++) {
             this.createWorker();
@@ -36,15 +36,27 @@ export class Pool {
     }
 
     public setTask(task: ICronWorkerJob) {
-        if (!this.processedTasks.has(task.name)) {
+        if (!this.processingTasks.has(task.name)) {
             this.tasks.set(task.name, task);
         }
         return task.name;
     }
 
+    public getCurrentWorkerPoolSize() {
+        return this.workerPool.size;
+    }
+
+    public getCurrentTaskPoolSize() {
+        return this.tasks.size;
+    }
+
+    public getCurrentProcessingTaskPoolSize() {
+        return this.processingTasks.size;
+    }
+
     private createWorker() {
         const workerId = v4();
-        const worker = new Worker(join(__dirname, 'adapters', 'poolAdapter.js'), {
+        const worker = new Worker(join(__dirname, '..', 'adapters', 'poolAdapter.js'), {
             workerData: {
                 id: workerId
             },
@@ -79,19 +91,25 @@ export class Pool {
         });
 
         worker.on('online', () => {
-            console.log(`Worker ${workerId} is online`);
+            parentPort?.postMessage({
+                event: 'Worker online',
+                data: workerId,
+            });
             this.workerPool.set(workerId, worker);
         });
 
         worker.on('exit', () => {
-            console.log(`Worker ${workerId} is offline`);
+            parentPort?.postMessage({
+                event: 'Worker offline',
+                data: workerId,
+            });
             this.workerPool.delete(workerId);
         });
         return worker;
     }
 
     private processWorker(task: ICronWorkerJob, taskId: string) {
-        this.processedTasks.set(taskId, true);
+        this.processingTasks.set(taskId, true);
 
         const workerId = this.freeWorkers[0];
         const worker = this.workerPool.get(workerId);
@@ -125,7 +143,7 @@ export class Pool {
                         }
                     });
                 }
-                this.processedTasks.delete(taskId);
+                this.processingTasks.delete(taskId);
                 this.tasks.delete(taskId);
                 this.freeWorkers.push(workerId);
                 worker.removeListener('message', listener);
@@ -135,20 +153,40 @@ export class Pool {
     }
 
     private processWorkerAndKill(task: ICronWorkerJob, taskId: string, worker: Worker) {
-        this.processedTasks.set(taskId, true);
+        this.processingTasks.set(taskId, true);
         if (worker) {
             worker.postMessage({
                 event: 'task',
                 task: task,
             });
-
-            worker.on('message', (msg: { event: string }) => {
+            parentPort?.postMessage({
+                event: 'Task started',
+                data: taskId,
+            });
+            const listener = (msg: { event: string, error: Error, data: any }) => {
                 if (msg.event === 'task_complete') {
-                    this.processedTasks.delete(taskId);
-                    this.tasks.delete(taskId);
+                    parentPort?.postMessage({
+                        event: 'Task completed',
+                        data: {
+                            task: taskId,
+                            result: JSON.stringify(msg.data),
+                        }
+                    });
+                } else if (msg.event === 'error') {
+                    parentPort?.postMessage({
+                        event: 'Task error',
+                        data: {
+                            task: taskId,
+                            error: msg.error,
+                        }
+                    });
                 }
+                this.processingTasks.delete(taskId);
+                this.tasks.delete(taskId);
+                worker.removeListener('message', listener);
                 worker.terminate().catch((err: Error) => console.error(err.message));
-            })
+            }
+            worker.on('message', listener);
         }
     }
 
@@ -158,7 +196,7 @@ export class Pool {
                 const taskFromMap = this.tasks.entries().next().value;
                 const taskId = taskFromMap[0];
 
-                if (this.processedTasks.has(taskId)) {
+                if (this.processingTasks.has(taskId)) {
                     return;
                 }
 
