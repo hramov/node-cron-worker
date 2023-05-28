@@ -10,7 +10,7 @@ Try this at your own risk! <code>npm i cron-worker-threads</code>
 
 Examples can be found in <code>./example</code>
 
-Basic usage
+### Basic usage
 <pre><code>const options = {
         timezone: 'Europe/Moscow',
         poolMin: 1,
