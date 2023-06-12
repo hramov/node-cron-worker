@@ -1,6 +1,6 @@
 {
   "name": "cron-worker-threads",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "NodeJS library for starting cron jobs in separate threads",
   "main": "dist/main.js",
   "types": "dist/main.d.ts",
